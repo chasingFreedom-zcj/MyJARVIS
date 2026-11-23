@@ -2,7 +2,6 @@ import os
 
 from dotenv import find_dotenv, load_dotenv
 from openai import AsyncOpenAI
-from typing import Any
 from openai.types.chat import ChatCompletionMessageParam
 
 load_dotenv(find_dotenv())
@@ -17,14 +16,12 @@ SYSTEM_PROMPT = """
 
 
 async def generate_reply(
-        messages: list[ChatCompletionMessageParam],
-)->str:
+    messages: list[ChatCompletionMessageParam],
+) -> str:
     api_key = os.getenv("DEEPSEEK_API_KEY")
 
     if not api_key:
-        raise RuntimeError(
-            "未配置 DEEPSEEK_API_KEY，请检查您的API_KEY配置"
-        )
+        raise RuntimeError("未配置 DEEPSEEK_API_KEY，请检查您的API_KEY配置")
     base_url = os.getenv(
         "LLM_BASE_URL",
         "https://api.deepseek.com",

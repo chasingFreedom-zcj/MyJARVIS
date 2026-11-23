@@ -1,14 +1,13 @@
-from alembic.command import history
 from fastapi import APIRouter, Depends, HTTPException, status
 from openai import APIError
-from openai.types.beta import assistant
+from openai.types.chat import ChatCompletionMessageParam
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import get_database
 from app.crud import conversation as conversation_crud
 from app.crud import message as message_crud
-from app.schemas.message import MessageCreate, MessageResponse
+from app.db.session import get_database
 from app.schemas.chat import ChatResponse
+from app.schemas.message import MessageCreate, MessageResponse
 from app.services.llm import generate_reply
 
 router = APIRouter(
@@ -16,14 +15,15 @@ router = APIRouter(
     tags=["Chat"],
 )
 
+
 @router.post(
     "/{conversation_id}/chat",
     response_model=ChatResponse,
 )
 async def create_chat(
-        conversation_id: int,
-        data: MessageCreate,
-        db: AsyncSession = Depends(get_database),
+    conversation_id: int,
+    data: MessageCreate,
+    db: AsyncSession = Depends(get_database),
 ):
     conversation = await conversation_crud.get_conversation(db, conversation_id)
 
@@ -41,30 +41,40 @@ async def create_chat(
         limit=20,
     )
 
-    messages = [
-        {
-            "role": item.role,
-            "content": item.content,
-        }
-        for item in history
-    ]
+    messages: list[ChatCompletionMessageParam] = []
+
+    for item in history:
+        if item.role == "user":
+            messages.append(
+                {
+                    "role": "user",
+                    "content": item.content,
+                }
+            )
+        elif item.role == "assistant":
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": item.content,
+                }
+            )
+        else:
+            raise RuntimeError(f"不支持的消息角色: {item.role}")
 
     try:
         reply = await generate_reply(messages)
     except APIError as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="大模型API调用失败，请检查API配置或稍后再试"
-        )from exc
+            detail="大模型API调用失败，请检查API配置或稍后再试",
+        ) from exc
     except RuntimeError as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(exc),
         ) from exc
 
-    assistant_message = (
-        await message_crud.create_assistant_message(db, conversation, reply)
-    )
+    assistant_message = await message_crud.create_assistant_message(db, conversation, reply)
 
     return ChatResponse(
         user_message=MessageResponse.model_validate(user_message),

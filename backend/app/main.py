@@ -1,28 +1,28 @@
 from fastapi import FastAPI
 from sqlalchemy import text
+
 from app.db.session import engine
-
-from app.routers.profiles import router as profile_router
-from app.routers.goal import router as goal_router
-from app.routers.conversation import router as conversation_router
-from app.routers.message import router as message_router
 from app.routers.chat import router as chat_router
+from app.routers.conversation import router as conversation_router
+from app.routers.goal import router as goal_router
+from app.routers.message import router as message_router
+from app.routers.profiles import router as profile_router
 
-app = FastAPI(
-    title="MyJARVIS",
-    description="A simple JARVIS API",
-    version = "0.1.0"
-)
+app = FastAPI(title="MyJARVIS", description="A simple JARVIS API", version="0.1.0")
+
+
 @app.get("/")
 async def root():
     return {
         "name": "JARVIS",
         "message": "Hello, I'm JARVIS! Your personal AI assistant.",
-
     }
+
+
 @app.get("/health")
 async def health_status():
     return {"status": "ok"}
+
 
 @app.get("/health/db")
 async def database_health_check():

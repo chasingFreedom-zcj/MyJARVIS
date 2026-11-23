@@ -6,8 +6,8 @@ from app.db.session import get_database
 from app.models.profile import UserProfile
 from app.schemas.profile import (
     ProfileCreate,
-    ProfileUpdate,
     ProfileResponse,
+    ProfileUpdate,
 )
 
 router = APIRouter(prefix="/profiles", tags=["个人档案"])
@@ -35,9 +35,7 @@ async def create_profile(
 async def get_profiles(
     db: AsyncSession = Depends(get_database),
 ):
-    result = await db.execute(
-        select(UserProfile).order_by(UserProfile.id)
-    )
+    result = await db.execute(select(UserProfile).order_by(UserProfile.id))
     return result.scalars().all()
 
 
@@ -46,9 +44,7 @@ async def get_profile(
     profile_id: int,
     db: AsyncSession = Depends(get_database),
 ):
-    result = await db.execute(
-        select(UserProfile).where(UserProfile.id == profile_id)
-    )
+    result = await db.execute(select(UserProfile).where(UserProfile.id == profile_id))
     profile = result.scalar_one_or_none()
 
     if profile is None:
@@ -66,9 +62,7 @@ async def update_profile(
     profile_data: ProfileUpdate,
     db: AsyncSession = Depends(get_database),
 ):
-    result = await db.execute(
-        select(UserProfile).where(UserProfile.id == profile_id)
-    )
+    result = await db.execute(select(UserProfile).where(UserProfile.id == profile_id))
     profile = result.scalar_one_or_none()
 
     if profile is None:
@@ -93,9 +87,7 @@ async def delete_profile(
     profile_id: int,
     db: AsyncSession = Depends(get_database),
 ):
-    result = await db.execute(
-        select(UserProfile).where(UserProfile.id == profile_id)
-    )
+    result = await db.execute(select(UserProfile).where(UserProfile.id == profile_id))
     profile = result.scalar_one_or_none()
 
     if profile is None:
