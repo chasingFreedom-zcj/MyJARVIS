@@ -4,6 +4,7 @@ from sqlalchemy import text
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.db.session import engine
+from app.middleware.request_context import RequestContextMiddleware
 from app.routers.chat import router as chat_router
 from app.routers.conversation import router as conversation_router
 from app.routers.goal import router as goal_router
@@ -13,7 +14,7 @@ from app.routers.profiles import router as profile_router
 configure_logging(settings.log_level)
 
 app = FastAPI(title="MyJARVIS", description="A simple JARVIS API", version="0.1.0")
-
+app.add_middleware(RequestContextMiddleware)
 
 @app.get("/")
 async def root():
