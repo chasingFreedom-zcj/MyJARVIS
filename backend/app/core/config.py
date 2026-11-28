@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    app_name:str = "MyJARVIS"
+    app_name: str = "MyJARVIS"
     app_version: str = "0.1.0"
     environment: Literal["development", "test", "production"] = "development"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
@@ -37,5 +37,6 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_log_level(cls, value: object) -> object:
         return value.upper() if isinstance(value, str) else value
+
 
 settings = Settings()

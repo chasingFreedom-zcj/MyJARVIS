@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 
+
 class RequestContextMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
@@ -75,4 +76,3 @@ class RequestContextMiddleware:
     @staticmethod
     def _elapsed_ms(started_at: float) -> float:
         return round((time.perf_counter() - started_at) * 1000, 2)
-
